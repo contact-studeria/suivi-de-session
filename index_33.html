@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Suivi de session &mdash; Studeria</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+
+:root {
+  --purple: #7b1ad5;
+  --violet: #a155f8;
+  --light: #e8bbff;
+  --ultralight: #f5dcff;
+  --ink: #0f0038;
+  --soft: #4a4a6a;
+  --muted: #8888a8;
+  --surface: #ffffff;
+  --white: #ffffff;
+  --teal: #06B6D4;
+  --amber: #F59E0B;
+  --rose: #F43F5E;
+  --emerald: #10B981;
+  --blue: #3B82F6;
+  --border: #dbd9e1;
+  --radius: 12px;
+  --rlg: 20px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--ink);
+  background: var(--surface);
+  line-height: 1.75;
+}
+
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: 280px; height: 100vh;
+  background: var(--ink);
+  padding: 24px 16px;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform .3s;
+}
+.sidebar .logo { font-size: 19px; color: #fff; font-weight: 700; }
+.sidebar .sub {
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 2px;
+  margin: 4px 0 20px;
+}
+.nav-section {
+  font-size: 10px; color: var(--violet);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 12px 13px 4px; font-weight: 700;
+}
+.sidebar a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 13px; margin-bottom: 2px;
+  color: rgba(255,255,255,.5);
+  text-decoration: none; font-size: 12.5px; font-weight: 500;
+  border-radius: 7px; transition: .2s;
+}
+.sidebar a:hover, .sidebar a.active { background: rgba(123,26,213,.2); color: #fff; }
+.sidebar .n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--violet); min-width: 18px; }
+.sidebar .div { height: 1px; background: rgba(255,255,255,.06); margin: 10px 0; }
+
+.toggle {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 200;
+  background: var(--purple); color: #fff; border: none;
+  border-radius: 8px; padding: 8px 12px; font-size: 18px; cursor: pointer;
+}
+
+.main { margin-left: 280px; min-height: 100vh; }
+
+.hero {
+  background: linear-gradient(135deg, #0f0038 0%, #7b1ad5 50%, #e08aff 100%);
+  padding: 80px 50px 65px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -40%; right: -15%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(123,26,213,.3), transparent 70%);
+  border-radius: 50%;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -25%; left: 8%;
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(224,138,255,.15), transparent 70%);
+  border-radius: 50%;
+}
+.hero-c { position: relative; z-index: 1; max-width: 720px; }
+.badge {
+  display: inline-block;
+  background: rgba(123,26,213,.3); color: var(--light);
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  margin-bottom: 18px;
+  border: 1px solid rgba(123,26,213,.4);
+}
+.hero h1 {
+  font-size: clamp(30px, 4.5vw, 48px);
+  color: #fff; font-weight: 700; line-height: 1.15;
+  margin-bottom: 14px;
+}
+.hero h1 em { color: var(--teal); font-style: normal; }
+.hero-c > p {
+  font-size: 16px; color: rgba(255,255,255,.65);
+  max-width: 560px; margin-bottom: 24px;
+}
+.hero-tags { display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-tags span { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.45); font-size: 12px; }
+.hero-tags .ic {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,.07); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+.content { max-width: 840px; margin: 0 auto; padding: 50px 32px 100px; }
+
+.ch { margin-bottom: 56px; scroll-margin-top: 20px; }
+.ch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.ch-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  color: var(--purple); background: var(--light);
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; flex-shrink: 0;
+}
+.ch h2 { font-size: 24px; font-weight: 700; }
+
+.card {
+  background: var(--white); border-radius: var(--rlg);
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(123,26,213,.06);
+  border: 1px solid var(--border);
+}
+.card p { margin-bottom: 14px; color: var(--soft); font-size: 15px; }
+.card p:last-child { margin-bottom: 0; }
+.card strong { color: var(--ink); font-weight: 600; }
+.card h3 {
+  font-size: 19px; font-weight: 600; color: var(--ink);
+  margin: 26px 0 10px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.card h3:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.card h4 { font-size: 14px; font-weight: 700; color: var(--purple); margin: 18px 0 6px; }
+.card ul { margin: 0 0 14px 20px; color: var(--soft); font-size: 15px; }
+.card li { margin-bottom: 4px; }
+
+.analogy {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border-radius: var(--radius); padding: 20px 24px;
+  margin: 18px 0; border-left: 4px solid var(--amber);
+}
+.analogy .al { font-weight: 700; color: #92400E; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.analogy p { font-size: 14px; color: #78350F; margin: 0; }
+
+.prereq {
+  background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+  border-radius: var(--radius); padding: 20px 24px;
+  margin: 18px 0; border-left: 4px solid var(--blue);
+}
+.prereq .pl { font-weight: 700; color: #1E40AF; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.prereq p, .prereq li { font-size: 14px; color: #1E3A5F; margin: 0; }
+.prereq ul { list-style: none; padding: 0; margin: 6px 0 0; }
+.prereq li { padding: 4px 0 4px 20px; position: relative; }
+.prereq li::before { content: '\2611'; position: absolute; left: 0; }
+
+.warning-big {
+  background: linear-gradient(135deg, #FEE2E2, #FECACA);
+  border-radius: var(--radius); padding: 20px 24px;
+  margin: 18px 0; border-left: 4px solid var(--rose);
+}
+.warning-big .wl { font-weight: 700; color: #991B1B; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.warning-big p { font-size: 14px; color: #7F1D1D; margin: 0; }
+
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 16px 0; }
+.steps li {
+  counter-increment: s; position: relative;
+  padding: 14px 14px 14px 50px; margin-bottom: 8px;
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-size: 14px; color: var(--soft); transition: .15s;
+}
+.steps li:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(123,26,213,.05); }
+.steps li::before {
+  content: counter(s); position: absolute;
+  left: 12px; top: 50%; transform: translateY(-50%);
+  width: 24px; height: 24px;
+  background: var(--purple); color: #fff;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+.steps li strong { color: var(--ink); }
+
+.mock {
+  background: #0f0038; border-radius: var(--radius);
+  overflow: hidden; margin: 20px 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.05);
+}
+.mock-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 12px; background: rgba(0,0,0,.3);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot.r { background: #ff5f57; }
+.dot.y { background: #ffbd2e; }
+.dot.g { background: #28c840; }
+.mock-url { margin-left: 12px; font-size: 10.5px; color: rgba(255,255,255,.3); font-family: 'JetBrains Mono', monospace; }
+.mock-body { padding: 16px; min-height: 120px; }
+
+.tw { overflow-x: auto; margin: 16px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead { background: var(--ink); }
+thead th { padding: 11px 14px; text-align: left; color: #fff; font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--soft); vertical-align: top; }
+tbody tr:nth-child(even) { background: var(--ultralight); }
+
+.tip { display: flex; gap: 12px; padding: 16px 20px; border-radius: var(--radius); margin: 16px 0; border-left: 4px solid; }
+.tip.info { background: #EFF6FF; border-color: var(--blue); }
+.tip.ok { background: #ECFDF5; border-color: var(--emerald); }
+.tip.warn { background: #FFFBEB; border-color: var(--amber); }
+.tip.err { background: #FFF1F2; border-color: var(--rose); }
+.tip-i { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+.tip-c { font-size: 13.5px; color: var(--soft); }
+.tip-c strong { color: var(--ink); display: block; margin-bottom: 2px; }
+
+.vg { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 16px 0; }
+.vc { background: var(--white); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); transition: .15s; }
+.vc:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(123,26,213,.07); }
+.vc .vt { font-weight: 700; color: var(--purple); font-size: 13.5px; margin-bottom: 3px; }
+.vc .vd { font-size: 12.5px; color: var(--soft); }
+.vc .ve { font-size: 11.5px; color: var(--muted); margin-top: 4px; font-style: italic; }
+
+.flow { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
+.flow-node { background: var(--white); border: 2px solid var(--border); border-radius: 14px; padding: 12px 18px; text-align: center; min-width: 120px; transition: .15s; }
+.flow-node:hover { border-color: var(--purple); box-shadow: 0 4px 14px rgba(123,26,213,.08); }
+.flow-node .fl { font-size: 22px; margin-bottom: 4px; }
+.flow-node .fn2 { font-weight: 700; font-size: 12.5px; color: var(--ink); }
+.flow-node .fd { font-size: 10.5px; color: var(--muted); }
+.flow-node.trigger { border-color: var(--emerald); background: #ECFDF5; }
+.flow-node.action { border-color: var(--blue); background: #EFF6FF; }
+.flow-node.ai { border-color: var(--purple); background: var(--ultralight); }
+.flow-arrow { font-size: 22px; color: var(--muted); padding: 0 6px; flex-shrink: 0; }
+
+.code {
+  background: #0f0038; color: #e2e8f0;
+  padding: 14px 18px; border-radius: var(--radius);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; margin: 12px 0;
+  overflow-x: auto; line-height: 1.6;
+}
+.code .cm { color: #6b7280; }
+.code .kw { color: var(--teal); }
+.code .str { color: #fbbf24; }
+
+.annotated { background: var(--ultralight); border: 1px solid rgba(123,26,213,.1); border-radius: var(--radius); padding: 24px; margin: 18px 0; }
+.annotated .caption { font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 10px; font-style: italic; }
+
+.task-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; padding: 16px; background: var(--ultralight); border-radius: var(--radius); }
+.task-list div { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--soft); }
+
+.footer { text-align: center; padding: 36px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--border); margin-top: 36px; }
+
+@media (max-width: 800px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .toggle { display: block; }
+  .main { margin-left: 0; }
+  .hero { padding: 70px 20px 45px; }
+  .content { padding: 28px 16px 60px; }
+  .card { padding: 22px; }
+  .flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+}
+
+@media print {
+  .sidebar, .toggle, .hero { display: none !important; }
+  .main { margin-left: 0 !important; }
+  .ch { break-inside: avoid; }
+  .card { box-shadow: none !important; border: 1px solid #ddd; }
+}
+
+
+/* ================= MODELE V3 ================= */
+:root{--accent:#3B82F6;--accent-soft:#bfdbfe;--em:#FDE68A}
+.progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:300;
+  background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .1s linear}
+
+.sidebar .brand{display:flex;align-items:center;gap:11px;margin-bottom:20px}
+.sidebar .brand img{width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  border:2px solid var(--accent);box-shadow:0 0 0 4px rgba(255,255,255,.07)}
+.sidebar .brand .bt{min-width:0}
+.sidebar .brand .logo{font-size:14.5px;line-height:1.25;margin:0}
+.sidebar .brand .sub{margin:2px 0 0;letter-spacing:.8px;font-size:9.5px;white-space:nowrap;color:var(--accent)}
+.nav-section{color:var(--accent)}
+.sidebar .n{color:var(--accent)}
+.sidebar a{position:relative}
+.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,.08);color:#fff}
+.sidebar a.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--accent)}
+
+/* --- hero --- */
+.hero{padding:58px 50px 54px;
+  background:linear-gradient(118deg,#0f0038 0%,var(--purple) 34%,var(--accent) 88%)}
+.hero::before{top:-30%;right:-10%;width:560px;height:560px;
+  background:radial-gradient(circle,rgba(59,130,246,.55),transparent 68%)}
+.hero::after{bottom:-34%;left:-8%;width:480px;height:480px;
+  background:radial-gradient(circle,rgba(59,130,246,.32),transparent 70%)}
+.hero-grid{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(ellipse at 30% 50%,#000 10%,transparent 72%);
+  mask-image:radial-gradient(ellipse at 30% 50%,#000 10%,transparent 72%)}
+.hero-inner{position:relative;z-index:1;max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;gap:44px}
+.hero-inner>.hero-c{flex:1 1 520px;min-width:0;max-width:600px}
+.hero h1 em{color:var(--em);font-style:normal}
+.hero h1{margin-bottom:12px}
+.hero-c>p{margin-bottom:18px}
+.hero-visual{flex:0 1 370px;min-width:0;position:relative;align-self:center;
+  display:flex;align-items:flex-end;justify-content:center}
+.hero-visual::before{content:'';position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);width:330px;height:330px;max-width:96%;
+  aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.22),rgba(255,255,255,.06) 58%,transparent 70%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 0 60px rgba(255,255,255,.10)}
+.hero-visual::after{content:'';position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);width:400px;height:400px;max-width:115%;
+  aspect-ratio:1;border-radius:50%;border:1px dashed rgba(255,255,255,.14);
+  animation:spin 46s linear infinite}
+.hero-visual img{position:relative;z-index:1;width:340px;max-width:100%;display:block;
+  filter:drop-shadow(0 22px 40px rgba(0,0,0,.45));animation:floaty 7s ease-in-out infinite}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+/* --- bandeau logos du hero --- */
+.hero-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 22px}
+.hero-tools .hl{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;
+  color:rgba(255,255,255,.82);font-weight:700;margin-right:4px}
+.hero-tools .ht{display:inline-flex;align-items:center;gap:7px;
+  background:#fff;border:1px solid rgba(255,255,255,.7);
+  border-radius:999px;padding:6px 14px 6px 10px;font-size:12.5px;font-weight:600;
+  color:#1b1040;box-shadow:0 4px 14px rgba(15,0,56,.22)}
+.hero-tools .ht svg{display:block;flex-shrink:0}
+.hero-tools .ht .ltr{box-shadow:none}
+
+/* lisibilite du bandeau d'informations */
+.hero-tags{gap:14px 20px}
+.hero-tags span{color:rgba(255,255,255,.92);font-size:12.5px;font-weight:500}
+.hero-tags .ic{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.22)}
+.badge{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff}
+.hero-c>p{color:rgba(255,255,255,.88)}
+
+/* --- cartes connecteurs --- */
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:18px 0}
+.tool{display:flex;gap:13px;background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:15px 16px;transition:.15s}
+.tool:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(123,26,213,.10)}
+.tico{width:40px;height:40px;border-radius:11px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center}
+.tname{font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;
+  gap:7px;flex-wrap:wrap;line-height:1.3}
+.mcp{font-size:9.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  padding:2px 7px;border-radius:5px;background:#ECFDF5;color:#047857;border:1px solid #a7f3d0}
+.mcp.no{background:#FFF7ED;color:#9A3412;border-color:#fed7aa}
+.tdesc{font-size:12.5px;color:var(--soft);margin-top:4px;line-height:1.55}
+.ltr{display:inline-flex;align-items:center;justify-content:center;border-radius:6px;
+  color:#fff;font-weight:700;font-size:12px;font-family:'Inter',sans-serif}
+
+/* --- sommaire --- */
+.toc{margin:-18px 0 44px}
+.toc-t{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin-bottom:12px}
+.toc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:10px}
+.toc-g a{display:flex;align-items:center;gap:10px;text-decoration:none;background:#fff;
+  border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;transition:.15s}
+.toc-g a:hover{border-color:var(--accent);transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(123,26,213,.10)}
+.toc-g .tn{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;
+  color:#fff;background:linear-gradient(135deg,var(--purple),var(--accent));border-radius:7px;
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toc-g .tt{font-size:13px;font-weight:600;color:var(--ink);line-height:1.35}
+
+/* --- chapitres --- */
+.ch{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+.ch.vis{opacity:1;transform:none}
+.ch-head{padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:22px}
+.ch-num{width:36px;height:36px;font-size:12px;color:#fff;
+  background:linear-gradient(135deg,var(--purple),var(--accent));
+  box-shadow:0 4px 12px rgba(123,26,213,.28)}
+.ch h2{font-size:25px;letter-spacing:-.3px}
+.card{box-shadow:0 6px 22px rgba(123,26,213,.07)}
+
+/* --- mascotte dans les conseils --- */
+.tip{position:relative}
+.tip-av{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  border:2px solid #fff;box-shadow:0 2px 8px rgba(15,0,56,.18)}
+
+/* --- bouton copier --- */
+.codewrap{position:relative;margin:12px 0}
+.codewrap .code{margin:0;padding-right:96px}
+.copybtn{position:absolute;top:10px;right:10px;z-index:2;cursor:pointer;
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);color:#fff;
+  border-radius:8px;padding:5px 11px;font-size:11.5px;font-weight:600;
+  font-family:'Inter',sans-serif;transition:.15s}
+.copybtn:hover{background:rgba(255,255,255,.2)}
+.copybtn.done{background:#10B981;border-color:#10B981}
+
+/* --- quiz --- */
+.quiz{display:flex;flex-direction:column;gap:14px;margin:18px 0}
+.q{border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;background:#fff}
+.q .qq{font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.q .qq .qn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-right:8px}
+.q button.opt{display:block;width:100%;text-align:left;cursor:pointer;
+  background:#fff;border:1px solid var(--border);border-radius:9px;
+  padding:10px 14px;margin-bottom:7px;font-size:13.5px;color:var(--soft);
+  font-family:'Inter',sans-serif;transition:.15s}
+.q button.opt:hover{border-color:var(--accent);background:#fcfaff}
+.q button.opt.good{background:#ECFDF5;border-color:#10B981;color:#065F46;font-weight:600}
+.q button.opt.bad{background:#FFF1F2;border-color:#F43F5E;color:#9F1239}
+.q .exp{display:none;font-size:13px;color:var(--soft);background:var(--ultralight);
+  border-radius:9px;padding:11px 14px;margin-top:6px}
+.q.answered .exp{display:block}
+.qscore{font-size:13.5px;font-weight:700;color:var(--ink);background:var(--ultralight);
+  border-radius:var(--radius);padding:13px 18px;text-align:center}
+
+/* --- retour en haut --- */
+.top{position:fixed;right:22px;bottom:22px;z-index:200;width:42px;height:42px;
+  border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:17px;
+  background:linear-gradient(135deg,var(--purple),var(--accent));
+  box-shadow:0 6px 18px rgba(123,26,213,.35);
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.top.show{opacity:1;pointer-events:auto}
+
+@media (max-width:1100px){
+  .hero-visual{flex:0 1 280px}
+  .hero-visual img{width:260px}
+  .hero-visual::before{width:250px;height:250px}
+  .hero-visual::after{width:305px;height:305px}
+}
+@media (max-width:900px){
+  .hero{padding:64px 20px 44px}
+  .hero-inner{flex-direction:column;align-items:flex-start;gap:14px}
+  .hero-visual{flex:none;align-self:center}
+  .hero-visual img{width:230px;max-width:62vw}
+  .hero-visual::before{width:230px;height:230px}
+  .hero-visual::after{width:275px;height:275px}
+  .hero-grid{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-visual img{animation:none}
+  .ch{opacity:1;transform:none;transition:none}
+}
+@media print{.progress,.top,.copybtn{display:none!important}}
+
+.toolico{border-radius:5px;vertical-align:middle;object-fit:contain}
+.kitbox{border:1px solid var(--border);border-radius:var(--rlg);padding:18px 20px;margin:18px 0;background:var(--ultralight)}
+.kitbox .kl{font-weight:700;color:var(--purple);margin-bottom:6px}
+.kitbox ol{margin:8px 0 0 18px}.kitbox li{margin:6px 0}
+.filelink{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:13px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-decoration:none;color:var(--purple);word-break:break-all}
+</style>
+</head>
+<body>
+<div class="progress"></div>
+
+<button class="toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+<nav class="sidebar">
+  <div class="brand"><img src="data:image/jpeg;base64,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" alt=""><div class="bt"><div class="logo">&#128218; Agent Suivi de session</div><div class="sub">Kit Formation et Qualiopi &middot; Studeria</div></div></div>
+
+  <div class="nav-section">&#127937; D&eacute;couvrir</div>
+  <a href="#ch0"><span class="n">00</span>&Agrave; quoi sert cet agent</a>
+  <a href="#ch1"><span class="n">01</span>Ce qu'il produit</a>
+
+  <div class="div"></div>
+
+  <div class="nav-section">&#129513; Comprendre</div>
+  <a href="#ch2"><span class="n">02</span>Les 4 briques d'un agent</a>
+
+  <div class="div"></div>
+
+  <div class="nav-section">&#128295; Installer</div>
+  <a href="#ch3"><span class="n">03</span>Le prompt d'initialisation</a>
+  <a href="#ch4"><span class="n">04</span>Connecter vos outils</a>
+
+  <div class="div"></div>
+
+  <div class="nav-section">&#9889; Utiliser</div>
+  <a href="#ch5"><span class="n">05</span>Le lancer &agrave; la main</a>
+  <a href="#ch6"><span class="n">06</span>Le mettre en automatique</a>
+
+  <div class="div"></div>
+
+  <div class="nav-section">&#127891; Ma&icirc;triser</div>
+  <a href="#ch7"><span class="n">07</span>Ce qu'il ne fait pas</a>
+  <a href="#ch8"><span class="n">08</span>Si &ccedil;a ne marche pas</a>
+  <a href="#ch9"><span class="n">09</span>R&eacute;cap et exercices</a>
+  <a href="#ch10"><span class="n">10</span>Quiz de fin</a>
+</nav>
+
+<div class="main">
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+  <div class="hero-c">
+    <span class="badge">&#128214; Guide agent Studeria &middot; D&eacute;butant</span>
+    <h1>Votre agent de <em>suivi de session</em></h1>
+    <p>Toute la cha&icirc;ne d'une session pr&eacute;par&eacute;e en brouillon&nbsp;: convocations, &eacute;margements par demi-journ&eacute;e, support, &eacute;valuations, attestations. Et l'&eacute;tat du dossier &agrave; tout moment&nbsp;: ce qui est revenu, ce qui manque, qui relancer.</p>
+    <div class="hero-tools"><span class="hl">Se branche avec</span><span class="ht"><img class="toolico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABGlBMVEUAAABAgP9DhvVBhvRChfRChfQZZ9IZZ9EZaNMYZtNAivRDhfQaZ9IVatVBhvQZaNJDhfMZaNEaZ9FChfQZZ9L////7vATx9v6myfaCs/Jin+9XmO57rvK41Pj7/f/i7fzG3PmYwPUofOkac+gwgOq00fifxPUhd+l0qvGRu/Tt9P2UvvQleulFjew3heu81vjD2vkzguvp8v34+/7f6/xMku1QlO2GtfMedegsfupTlu5JkO2tzfd/sPKJt/O/2PmNufTX5/s6h+uqy/abwvXJ3vpwqPH0+P4+ieyxz/dtpvBbm+5ene/U5ftlofDN4PoYgDg0qFPqQzXqRDUYgDgXgDgggEAYgDgagDkXgDcAgEAZgTgYgDgYgDg1l7sXAAAAXnRSTlMABGO73///z5tLGM+fDL+7a1Oz79///////////////////////////////////////////////////////////////////////////////////4/bgxDjKM8Ee8PzvzhR0gAAAcJJREFUeAHt1oWu20AQheEppMzthPmEmXOZqQxbhvd/ja59mS1rRhDtbxTtJ1qgWcvlct24eet2JER3TnT33n26rAcPI0eFBmyPHtPFPYlIALandGHPIjKA7Tld1C054AVd1Es54BVdVEQKsMkBDnCAAxzAAYueywEOmEEgFk8kU+lMlk+Wy+djMkC2UIRfqczHVapAXgao4ag6H9RIAlJAE7ZWuwOvLvv1+hADBlUAiSHzaAxgwrbsdA6CwHQeC+wVmwdgpcYibHNCgG24lGO/JADvdwHA8ooccNQEQMx+c635VV6TB9arwAZ7dQesAGQ6AJb4IGFgdaHdgm2ZlYBN+G2xMtAvawHbOzuTImxbSoDXsDkHzI3UAFsBwI4msDsH7MkDw9dNPqgEzIkDayVUY+w3ALAhDrwB8DbLXu8AJMWB93MAxquNRncMW08c4BWc6APLA5zGUaldDYC7e/DrV9TWoo+F5cRWzx0dHTD7wKdzfQ7Yl7MZZcCQLmBIFzCkCxjSBQzpAoZ0AUO6gCFdwJAuYEgXMKQLGLqur+GBQOPTt/BAoPHp+4/wgKEg/fwVFjAUrN9//v4LAxhyuVyz3X/dV4hAn5ff5AAAAABJRU5ErkJggg==" width="18" height="18" alt="">Google Agenda</span><span class="ht"><img class="toolico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAEkklEQVR4Ae2ZA5BkSRRFc23bv7H2Fta72V7btm3bDq3tsdkY27b9a9xmTr6IyXB0Z1W/6j8/+56IGzOB1jsdpzp+CQMAAAAAAAAAAAAAAACAEZ53xvDMoz8ekXXMqBGZxyyiDc88pnhExjHvj/S8E0Q7pW7gTtH64h0/ry/ZcVhDyQ6LaPT/+tIdX68ZtEu2aC2js484Uh+7l55qZvUjM4/+btBxhx8o2gnVg3b16kp2+k8fWzU3LeQ3NUjsK1JB/8ZfoI+7QU9ZLjHS84qE4+ij3qyPW66nLLesdsDOyVViZNaR2Toxq+iwyY6yNEiKHYVjqEFi14biHb6joyY7naRZapCwL8TW1qtUR68PYz3vUOEI1HN9yEl6KtVRsoQNw7I9aQ7ZSgmr9GtDnvPJsV+91QuzPl4nPcW1NXmRd5WUoUvSIil3XXvVGX/T8bhGfzHZCJjGKcDPi6lEXqzYl7HQJMmXZ2Xr73uSHh2Oc71sBFQzCzBbtbogts0nSX+fN/t58XL6nrkF0IuxjQCVJgG0+kRu9G2eJPEnJ5Ef/c58r9wCzIIWwJwk/uS4LoA1SfzJcV8Aa5L4k+O+AIYk8SYHAhiSxJAcCEh3knx58p768/9kvhYEtGGSVhdGT/FzY9Poc2/zAp58oMvYYVlZAQngT5LOzd0mOUEKqCzeRd3fRY4ULZH7YYW6+cVJS/qeenYAAtiSZJLzm/lcQQpYNGAfVdjh8uXR/69XVgJol7zrV/1+0W0sAhg2aJ08+8j0J4dfQL8+x6hzO1xbQ8dPSoDZezd+oShJAQugJdbkx4v4k8MvwCTnw+4RZQ6fsgDag48Xq/6nRBgEMCw39jEliS85/AIoObd2yqeD8wigXf36YvXnBTdzCGBYfBgliSE57AIoORd1uJqOzSuAlv/BRvXB9Z9RkngEMCSp2eQwrBXJ4Rdgdt+TgxT9lWQpINRrZXL4BZhd8dYyRX8luS/APjn8Aiz2zk3fUJJcFWCbnOAE0O55aiglyUUBFskJXIBJ0opGSpJjAmyTE7wAs7dv/qaRkuSUAPvkBC+AdssLkxOUJFcEUHKu71RYRQcMhQBawQcbN/4s75kfdgFde2cuOuf/66rpeKESYEZPM+mpZgiPX53Iiz5sDhdaAUJDz/Xp+X5ojp8fn+cXxM4QGicEEPQOF73TFQIB/9GDPUG4JICgp5j8SeJNjjC4KIDgTxJvctwXwJ8k1uS4L4A/SazJcV8AZ5IYkgMBDEliSA4EpD9J8XK9+4UBAtouSfR+Mb1vLAgIaPMk/WafHAjgSpJJzt3CAAGpk8iPSn3UZezJgQB7VsrIgfq4/ZJNDgQw4+fGX6YkWScHAvjx8yMXUJIYkgMBDEliTQ4E8AMBEAABEAABEAABEAABEAABEAABQQEBEDDLQkDlPAhIk4D/rv+rZQEflL8PAekREPv/httFS8h3NuyrD7eMUwAE0PGv7yVskR9tPiHvw4pJbAIgYFqs442HimSQ76gd9evB6zkfVg7T/5ZDQGqHj3S47nn52z27CgAAAAAAAAAAAAAAAAAAtFu2AJlqODQM4+yVAAAAAElFTkSuQmCC" width="18" height="18" alt="">Gmail</span><span class="ht"><img class="toolico" src="data:image/png;base64,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" width="18" height="18" alt="">Google Drive</span><span class="ht"><img class="toolico" src="data:image/png;base64,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" width="18" height="18" alt="">Tally</span><span class="ht"><img class="toolico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAACM0lEQVR4nO3cMW5TQRSF4TMzjyjBiRFFvABaJCRKpCCLHVClYgfsAYVFsAI6U1FCg6JEoo9EywZSIBw5cay8uSkghWUKm+bXwPnaae7ot+dpmknTl49CjYhQP9zKZbqopw8+fn8e43F3dHSsty908+aTTrZ3dXA9Uy+p0LOuK9MD/O8cAOYAMAeAOQDMAWAOAHMAmAPAHADmADAHgDkAzAFgDgBzAJgDwBwA5gAwB4A5AMwBYA4AcwCYA8AcAOYAMAeAOQDMAWAOAHMAmAPAHADmADAHgDkAzAFgDgBzAJgDwBwA1kWop4fYwN2sdWUlVEPqk9Q38/aCpG64lZt5V6FWFd3L0qLfW1lM2tsZqKhXSc3sSOqmi3pKD7GBOszKOaUzSdJoFI/Pf68kfb2aaXY9V1X4aLU1pRiPO3qIjY2OI31Y/nZNJirf9pWokf5W0pdoL8C5QodpKUBMVNRgAIMlvf9xQg+xgaqdYdZ8eqZXD19rEiWUlA7Vx2e907ae6FJVqZ2PcKf7wwN6iLXVG2mQpasYSNLSkRN6pl09Vaip62Wny59tXcRyKVK6WFkJXWimXvO23ozrlBq6tkRISkV/+o3/Onbu9tLMnhr6s/6bHADmADAHgDkAzAFgDgBzAJgDwBwA5gAwB4A5AMwBYA4AcwCYA8AcAOYAMAeAOQDMAWAOAHMAmAPAHADmADAHgDkAzAFgDgBzAJgDwBwA5gAwB4A5AMwBYA4AcwCYA8AcAHYLYOlm1RkSAKIAAAAASUVORK5CYII=" width="18" height="18" alt="">Microsoft 365</span></div>
+    <div class="hero-tags"><span><span class="ic">&#127919;</span>Aucun pr&eacute;requis technique</span><span><span class="ic">&#9203;</span>15 minutes de lecture</span><span><span class="ic">&#9997;&#65039;</span>Il ne signe jamais &agrave; votre place</span><span><span class="ic">&#129302;</span>Kit Formation et Qualiopi</span></div>
+  </div>
+  <div class="hero-visual"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNDAgMzgwIiB3aWR0aD0iMzQwIiBoZWlnaHQ9IjM4MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJMYSBjaGFpbmUgZGVzIHBpZWNlcyBkIHVuZSBzZXNzaW9uIGRlIGZvcm1hdGlvbiBhdmVjIGwgZXRhdCBkdSBkb3NzaWVyIGV0IGwgZXZhbHVhdGlvbiBhIGZyb2lkIGEgSiBwbHVzIDkwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY2FyZCIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iLjk4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2Y1ZGNmZiIgc3RvcC1vcGFjaXR5PSIuOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNoIiB4PSItNDAlIiB5PSItNDAlIiB3aWR0aD0iMTgwJSIgaGVpZ2h0PSIxODAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjkiIHN0ZERldmlhdGlvbj0iMTAiIGZsb29kLWNvbG9yPSIjMGYwMDM4IiBmbG9vZC1vcGFjaXR5PSIuMzQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KCiAgPCEtLSBsYSBmcmlzZSBkZSBsYSBzZXNzaW9uIC0tPgogIDxnIGZpbHRlcj0idXJsKCNzaCkiPgogICAgPHJlY3QgeD0iMTQiIHk9IjE0IiB3aWR0aD0iMzEyIiBoZWlnaHQ9Ijc0IiByeD0iMTIiIGZpbGw9IiM3YjFhZDUiLz4KICA8L2c+CiAgPGxpbmUgeDE9IjQ4IiB5MT0iNTgiIHgyPSIyOTIiIHkyPSI1OCIgc3Ryb2tlPSIjZThiYmZmIiBzdHJva2Utd2lkdGg9IjIuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGcgZm9udC1mYW1pbHk9IkludGVyLHN5c3RlbS11aSxzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4KICAgIDxjaXJjbGUgY3g9IjYyIiBjeT0iNTgiIHI9IjkiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSI2MiIgeT0iNjIiIGZvbnQtc2l6ZT0iOSI+8J+TqDwvdGV4dD4KICAgIDx0ZXh0IHg9IjYyIiB5PSI4MCIgZm9udC1zaXplPSI3LjUiIGZpbGw9IiNlOGJiZmYiPmF2YW50PC90ZXh0PgogICAgPGNpcmNsZSBjeD0iMTQ1IiBjeT0iNTgiIHI9IjkiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSIxNDUiIHk9IjYyIiBmb250LXNpemU9IjkiPuKcje+4jzwvdGV4dD4KICAgIDx0ZXh0IHg9IjE0NSIgeT0iODAiIGZvbnQtc2l6ZT0iNy41IiBmaWxsPSIjZThiYmZmIj5wZW5kYW50PC90ZXh0PgogICAgPGNpcmNsZSBjeD0iMjIyIiBjeT0iNTgiIHI9IjkiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSIyMjIiIHk9IjYyIiBmb250LXNpemU9IjkiPvCfk4Q8L3RleHQ+CiAgICA8dGV4dCB4PSIyMjIiIHk9IjgwIiBmb250LXNpemU9IjcuNSIgZmlsbD0iI2U4YmJmZiI+w6AgbGEgZmluPC90ZXh0PgogICAgPGNpcmNsZSBjeD0iMjkyIiBjeT0iNTgiIHI9IjExIiBmaWxsPSIjRjU5RTBCIi8+PHRleHQgeD0iMjkyIiB5PSI2MiIgZm9udC1zaXplPSIxMCI+4p2E77iPPC90ZXh0PgogICAgPHRleHQgeD0iMjkyIiB5PSI4MCIgZm9udC1zaXplPSI3LjUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmZmZmYiPkorOTA8L3RleHQ+CiAgICA8dGV4dCB4PSIxNzAiIHk9IjM2IiBmb250LXNpemU9IjkiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNlOGJiZmYiPkxBIENIQcOOTkUgRCdVTkUgU0VTU0lPTjwvdGV4dD4KICA8L2c+CgogIDwhLS0gbCdldGF0IGR1IGRvc3NpZXIgLS0+CiAgPGcgZmlsdGVyPSJ1cmwoI3NoKSI+CiAgICA8cmVjdCB4PSIxNCIgeT0iMTA0IiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjIwMCIgcng9IjEyIiBmaWxsPSJ1cmwoI2NhcmQpIi8+CiAgPC9nPgogIDxnIGZvbnQtZmFtaWx5PSJJbnRlcixzeXN0ZW0tdWksc2Fucy1zZXJpZiI+CiAgICA8dGV4dCB4PSIzMCIgeT0iMTI2IiBmb250LXNpemU9IjkiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiM3YjFhZDUiPsOJVEFUIERVIERPU1NJRVI8L3RleHQ+CgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzAsMTM4KSI+CiAgICAgIDxjaXJjbGUgY3g9IjgiIGN5PSI5IiByPSI4IiBmaWxsPSIjMTBCOTgxIi8+PHRleHQgeD0iOCIgeT0iMTMiIGZvbnQtc2l6ZT0iOSIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4pyTPC90ZXh0PgogICAgICA8dGV4dCB4PSIyNiIgeT0iMTMiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiMwZjAwMzgiPkNvbnZvY2F0aW9ucyBlbnZvecOpZXM8L3RleHQ+CiAgICA8L2c+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMCwxNjgpIj4KICAgICAgPGNpcmNsZSBjeD0iOCIgY3k9IjkiIHI9IjgiIGZpbGw9IiMxMEI5ODEiLz48dGV4dCB4PSI4IiB5PSIxMyIgZm9udC1zaXplPSI5IiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inJM8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI2IiB5PSIxMyIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzBmMDAzOCI+w4ltYXJnZW1lbnRzLCBtYXRpbiBldCBhcHLDqHMtbWlkaTwvdGV4dD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMwLDE5OCkiPgogICAgICA8cmVjdCB4PSItOCIgeT0iLTYiIHdpZHRoPSIyODgiIGhlaWdodD0iMzIiIHJ4PSI4IiBmaWxsPSIjRjU5RTBCIiBmaWxsLW9wYWNpdHk9Ii4xNiIgc3Ryb2tlPSIjRjU5RTBCIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNCAzIi8+CiAgICAgIDxjaXJjbGUgY3g9IjgiIGN5PSI5IiByPSI4IiBmaWxsPSIjRjU5RTBCIi8+PHRleHQgeD0iOCIgeT0iMTMiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMwZjAwMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPiE8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI2IiB5PSIxMyIgZm9udC1zaXplPSIxMC41IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMGYwMDM4Ij4xIGZldWlsbGUgbm9uIHJldmVudWUg4oCUIMOgIHJlbGFuY2VyPC90ZXh0PgogICAgPC9nPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzAsMjM4KSI+CiAgICAgIDxjaXJjbGUgY3g9IjgiIGN5PSI5IiByPSI4IiBmaWxsPSIjY2JiNmU4Ii8+PHRleHQgeD0iOCIgeT0iMTMiIGZvbnQtc2l6ZT0iOSIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+wrc8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI2IiB5PSIxMyIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNGI3NCI+QXR0ZXN0YXRpb25zIHByw6lwYXLDqWVzLCBlbiBhdHRlbnRlIGQnYWNjb3JkPC90ZXh0PgogICAgPC9nPgogICAgPGxpbmUgeDE9IjMwIiB5MT0iMjY4IiB4Mj0iMzEwIiB5Mj0iMjY4IiBzdHJva2U9IiNlNWQ0ZjUiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMCwyNzYpIj4KICAgICAgPHRleHQgeD0iMCIgeT0iMTIiIGZvbnQtc2l6ZT0iMTEiPuKdhO+4jzwvdGV4dD4KICAgICAgPHRleHQgeD0iMjIiIHk9IjEyIiBmb250LXNpemU9IjkuNSIgZmlsbD0iIzViNGI3NCI+w4l2YWx1YXRpb24gw6AgZnJvaWQgcG9zw6llIGRhbnMgbCdhZ2VuZGE8L3RleHQ+CiAgICA8L2c+CiAgPC9nPgoKICA8IS0tIGxhIGxlZ2VuZGUgLS0+CiAgPGcgZm9udC1mYW1pbHk9IkludGVyLHN5c3RlbS11aSxzYW5zLXNlcmlmIj4KICAgIDxyZWN0IHg9IjE0IiB5PSIzMTgiIHdpZHRoPSIzMTIiIGhlaWdodD0iNDQiIHJ4PSIxMSIgZmlsbD0iIzBmMDAzOCIvPgogICAgPHRleHQgeD0iMTcwIiB5PSIzMzciIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRvdXQgcmVzdGUgZW4gYnJvdWlsbG9uPC90ZXh0PgogICAgPHRleHQgeD0iMTcwIiB5PSIzNTMiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiNlOGJiZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPmV0IGlsIG5lIHNpZ25lIGphbWFpcyDDoCBsYSBwbGFjZSBkZSBxdWVscXUndW48L3RleHQ+CiAgPC9nPgo8L3N2Zz4K" alt=""></div>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="toc"><div class="toc-t">Sommaire du guide</div><div class="toc-g"><a href="#ch0"><span class="tn">00</span><span class="tt">&Agrave; quoi sert cet agent</span></a><a href="#ch1"><span class="tn">01</span><span class="tt">Ce qu'il produit</span></a><a href="#ch2"><span class="tn">02</span><span class="tt">Les 4 briques d'un agent</span></a><a href="#ch3"><span class="tn">03</span><span class="tt">Le prompt d'initialisation</span></a><a href="#ch4"><span class="tn">04</span><span class="tt">Connecter vos outils</span></a><a href="#ch5"><span class="tn">05</span><span class="tt">Le lancer &agrave; la main</span></a><a href="#ch6"><span class="tn">06</span><span class="tt">Le mettre en automatique</span></a><a href="#ch7"><span class="tn">07</span><span class="tt">Ce qu'il ne fait pas</span></a><a href="#ch8"><span class="tn">08</span><span class="tt">Si &ccedil;a ne marche pas</span></a><a href="#ch9"><span class="tn">09</span><span class="tt">R&eacute;cap et exercices</span></a><a href="#ch10"><span class="tn">10</span><span class="tt">Quiz de fin</span></a></div></div>
+
+
+
+
+<!-- ===== CH 00 ===== -->
+<div class="ch" id="ch0">
+  <div class="ch-head"><span class="ch-num">00</span><h2>&Agrave; quoi sert cet agent</h2></div>
+  <div class="card">
+
+    <p>Une session de formation, c'est deux heures de contenu bien pr&eacute;par&eacute; et une longue tra&icirc;ne de pi&egrave;ces&nbsp;: convocations, &eacute;margements, supports, &eacute;valuations, attestations. La tra&icirc;ne ne se voit pas, et c'est elle qui fait perdre du temps &mdash; parce qu'elle se rattrape toujours apr&egrave;s coup.</p>
+    <p>Trois mois plus tard, quelqu'un demande une feuille sign&eacute;e ou une attestation, et commence la fouille dans les mails. Le probl&egrave;me n'est pas de produire ces pi&egrave;ces&nbsp;: c'est de savoir, &agrave; tout moment, <strong>lesquelles manquent</strong>.</p>
+    <p>Cet agent pr&eacute;pare toute la cha&icirc;ne en brouillon et <strong>tient l'&eacute;tat de la session</strong>&nbsp;: qui est inscrit, ce qui est revenu sign&eacute;, ce qui manque, qui relancer. Il pose aussi dans l'agenda la date de l'&eacute;valuation &agrave; froid, celle qu'on oublie toujours.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th></th><th>Sans l'agent</th><th>Avec l'agent</th></tr></thead>
+        <tbody>
+          <tr><td>&#128233; Les convocations</td><td>&Eacute;crites une par une la veille</td><td>Nominatives, pr&ecirc;tes en brouillon</td></tr>
+          <tr><td>&#9997;&#65039; Les &eacute;margements</td><td>Imprim&eacute;s au dernier moment</td><td>Pr&eacute;par&eacute;s par demi-journ&eacute;e, avec les bons intitul&eacute;s</td></tr>
+          <tr><td>&#128269; L'&eacute;tat du dossier</td><td>Dans la t&ecirc;te, ou nulle part</td><td>Ce qui est revenu, ce qui manque, qui relancer</td></tr>
+          <tr><td>&#10052;&#65039; L'&eacute;valuation &agrave; froid</td><td>Oubli&eacute;e</td><td>Pos&eacute;e dans l'agenda le jour de la session</td></tr>
+          <tr><td>&#128196; Les attestations</td><td>&Eacute;mises &agrave; la demande, des mois apr&egrave;s</td><td>Pr&eacute;par&eacute;es avec le dossier, &eacute;mises apr&egrave;s votre accord</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="analogy">
+      <div class="al">&#9992;&#65039; L'analogie de la check-list</div>
+      <p>Un pilote ne se souvient pas de sa check-list&nbsp;: il la lit, &agrave; voix haute, m&ecirc;me apr&egrave;s vingt ans. Pas parce qu'il risque d'oublier le d&eacute;collage, mais parce qu'il risque d'oublier le point 14. Une session, c'est pareil&nbsp;: ce qui tombe, ce n'est jamais la formation, c'est le point 14.</p>
+    </div>
+
+    <div class="tip info">
+      <span class="tip-i">&#128100;</span>
+      <div class="tip-c"><strong>Pour qui c'est fait</strong>Le formateur ind&eacute;pendant qui est aussi son propre service administratif, et le petit organisme o&ugrave; la m&ecirc;me personne vend, forme et suit les dossiers. C'est l&agrave; que la tra&icirc;ne co&ucirc;te le plus cher.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 01 ===== -->
+<div class="ch" id="ch1">
+  <div class="ch-head"><span class="ch-num">01</span><h2>Ce qu'il produit</h2></div>
+  <div class="card">
+
+    <p>Une cha&icirc;ne de pi&egrave;ces, toutes en brouillon, et <strong>un &eacute;tat de session</strong> qui dit o&ugrave; en est chacune.</p>
+
+    <h3>La cha&icirc;ne, dans l'ordre</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Moment</th><th>La pi&egrave;ce</th><th>Le point d'attention</th></tr></thead>
+        <tbody>
+          <tr><td>Avant</td><td><strong>Convocations nominatives</strong></td><td>Dates, horaires, lieu ou lien, pr&eacute;requis, contact du r&eacute;f&eacute;rent handicap.</td></tr>
+          <tr><td>Pendant</td><td><strong>Feuilles d'&eacute;margement</strong></td><td>Par demi-journ&eacute;e, avec l'intitul&eacute; et le formateur. C'est ce que les financeurs attendent.</td></tr>
+          <tr><td>Pendant</td><td><strong>Support remis</strong></td><td>Trac&eacute;&nbsp;: ce qui a &eacute;t&eacute; remis, &agrave; qui, quand.</td></tr>
+          <tr><td>&Agrave; la fin</td><td><strong>&Eacute;valuation &agrave; chaud</strong></td><td>&Agrave; distinguer de l'&eacute;valuation des acquis&nbsp;: la satisfaction n'est pas l'atteinte des objectifs.</td></tr>
+          <tr><td>Apr&egrave;s</td><td><strong>Attestations</strong></td><td>Pr&eacute;par&eacute;es, jamais &eacute;mises sans votre accord.</td></tr>
+          <tr><td>&Agrave; J+90</td><td><strong>&Eacute;valuation &agrave; froid</strong></td><td>Pos&eacute;e dans l'agenda d&egrave;s la fin de session, sinon elle n'a jamais lieu.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip info">
+      <span class="tip-i">&#128197;</span>
+      <div class="tip-c"><strong>Pourquoi J+90, et pas autre chose</strong>Aucun texte n'impose ce d&eacute;lai&nbsp;: c'est un choix, celui de laisser passer assez de temps pour que la personne ait eu l'occasion d'appliquer. Ce qui compte, c'est que le d&eacute;lai soit <strong>le m&ecirc;me pour toutes vos sessions</strong> et &eacute;crit quelque part&nbsp;: sinon les r&eacute;ponses ne se comparent pas. Changez-le si votre m&eacute;tier le justifie, mais changez-le partout.</div>
+    </div>
+
+    <h3>L'&eacute;tat de session</h3>
+    <p>Un tableau, tenu &agrave; jour&nbsp;: qui est inscrit, quelle pi&egrave;ce est revenue sign&eacute;e, laquelle manque, qui relancer et depuis quand. C'est le livrable le plus utile, et c'est celui qu'on n'a jamais quand on en a besoin.</p>
+
+    <div class="tip err">
+      <span class="tip-i">&#128683;</span>
+      <div class="tip-c"><strong>Il ne signe jamais &agrave; la place de quelqu'un</strong>Ni un &eacute;margement, ni une attestation. Il pr&eacute;pare le document, il le pr&eacute;-remplit, il vous dit qui n'a pas sign&eacute; &mdash; la signature reste un acte de la personne. C'est aussi ce qui donne sa valeur &agrave; la pi&egrave;ce.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 02 ===== -->
+<div class="ch" id="ch2">
+  <div class="ch-head"><span class="ch-num">02</span><h2>Les 4 briques d'un agent</h2></div>
+  <div class="card">
+
+    <p>Un agent n'est pas une bo&icirc;te noire. Il est fait de quatre pi&egrave;ces, et chacune a un r&ocirc;le pr&eacute;cis. Comprendre ces quatre pi&egrave;ces, c'est comprendre les trois agents du kit Formation et Qualiopi.</p>
+
+    <div class="vg">
+      <div class="vc">
+        <div class="vt">&#128220; Le skill</div>
+        <div class="vd">La proc&eacute;dure. Ce que l'agent doit faire, dans quel ordre, et ce qu'il doit produire &agrave; la fin.</div>
+        <div class="ve">Ici&nbsp;: pr&eacute;parer la cha&icirc;ne, puis tenir l'&eacute;tat</div>
+      </div>
+      <div class="vc">
+        <div class="vt">&#128214; Le contexte</div>
+        <div class="vd">Le fichier contexte-agent.md. Statut de l'organisme, num&eacute;ro de d&eacute;claration, financeurs habituels, outil de gestion, r&eacute;f&eacute;rent handicap.</div>
+        <div class="ve">Ex&nbsp;: &laquo;&nbsp;OF certifi&eacute;, financeurs&nbsp;: OPCO et entreprises en direct&nbsp;&raquo;</div>
+      </div>
+      <div class="vc">
+        <div class="vt">&#128268; Le connecteur</div>
+        <div class="vd">Le branchement vers l'agenda, la messagerie et le dossier de session. C'est l'agent du kit qui en utilise le plus.</div>
+        <div class="ve">Ex&nbsp;: votre agenda, votre messagerie, votre stockage</div>
+      </div>
+      <div class="vc">
+        <div class="vt">&#9203; La t&acirc;che programm&eacute;e</div>
+        <div class="vd">Le d&eacute;clencheur. Trois ici, et c'est normal&nbsp;: une session a trois moments, et chacun a ses oublis.</div>
+        <div class="ve">Ex&nbsp;: chaque lundi, chaque vendredi, et &agrave; J+90</div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-node trigger"><div class="fl">&#128197;</div><div class="fn2">Une session</div><div class="fd">Dans l'agenda</div></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node ai"><div class="fl">&#128203;</div><div class="fn2">Skill</div><div class="fd">La cha&icirc;ne de pi&egrave;ces</div></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node"><div class="fl">&#9997;&#65039;</div><div class="fn2">Les retours</div><div class="fd">Sign&eacute;s, ou manquants</div></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node action"><div class="fl">&#10052;&#65039;</div><div class="fn2">J+90</div><div class="fd">&Eacute;valuation &agrave; froid</div></div>
+    </div>
+
+    <div class="analogy">
+      <div class="al">&#127869;&#65039; L'analogie de la recette</div>
+      <p>Le <strong>skill</strong>, c'est la recette &eacute;crite. Le <strong>contexte</strong>, c'est pour qui on cuisine&nbsp;: un financeur n'attend pas les m&ecirc;mes pi&egrave;ces qu'un client en direct. Les <strong>connecteurs</strong>, ce sont les portes&nbsp;: l'agenda, la messagerie, le dossier. La <strong>t&acirc;che programm&eacute;e</strong>, c'est le minuteur &mdash; et ici il sonne trois fois.</p>
+    </div>
+
+    <div class="tip warn">
+      <span class="tip-i">&#9889;</span>
+      <div class="tip-c"><strong>La brique qui change tout, c'est l'agenda</strong>Sans lui, l'&eacute;valuation &agrave; froid d&eacute;pend de votre m&eacute;moire trois mois apr&egrave;s la session&nbsp;: autant dire qu'elle n'aura pas lieu. Pos&eacute;e le jour m&ecirc;me, elle arrive toute seule.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 03 ===== -->
+<div class="ch" id="ch3">
+  <div class="ch-head"><span class="ch-num">03</span><h2>Le prompt d'initialisation</h2></div>
+  <div class="card">
+    <div class="kitbox">
+      <div class="kl">&#128230; Un kit agent, c'est deux &eacute;l&eacute;ments</div>
+      <ol>
+        <li><strong>Le fichier d'instructions</strong> &mdash; il contient tout&nbsp;: les connecteurs &agrave; brancher, les comp&eacute;tences &agrave; cr&eacute;er, les t&acirc;ches programm&eacute;es. Vous le t&eacute;l&eacute;chargez et vous le d&eacute;posez dans la conversation.</li>
+        <li><strong>Le prompt d'initialisation</strong> &mdash; une seule phrase, qui dit &agrave; Claude de lire ce fichier et d'installer l'agent.</li>
+      </ol>
+    </div>
+
+    <h3>1. T&eacute;l&eacute;chargez le fichier d'instructions</h3>
+    <p><a class="filelink" href="https://drive.google.com/file/d/1j65eN7ptlHwXppTUNWQR--g9YDMYTjEn/view" target="_blank" rel="noopener">&#128196; Agent-suivi-de-session.md</a></p>
+    <p>Ouvrez une conversation Claude, d&eacute;posez le fichier dedans, puis collez le prompt ci-dessous.</p>
+
+    <h3>2. Collez le prompt d'initialisation</h3>
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">
+Lis le fichier Agent-suivi-de-session.md que je viens de te d&eacute;poser, et installe l'agent. Dans l'ordre&nbsp;: connecte les MCP qu'il liste, cr&eacute;e les skills qu'il d&eacute;crit en commen&ccedil;ant par le d&eacute;marrage, puis cr&eacute;e les t&acirc;ches programm&eacute;es. Pour chaque &eacute;l&eacute;ment, annonce ce que tu vas faire et attends mon accord avant de cr&eacute;er. S'il manque une information que le fichier ne contient pas, pose-moi la question, une &agrave; la fois, et n'invente aucune valeur. Quand tout est en place, fais-moi un r&eacute;capitulatif de ce qui est connect&eacute;, de ce qui a &eacute;t&eacute; cr&eacute;&eacute;, et de ce qui reste &agrave; faire de mon c&ocirc;t&eacute;.
+    </div></div>
+
+    <div class="tip info">
+      <span class="tip-i">&#128161;</span>
+      <div class="tip-c"><strong>Pourquoi ce prompt est &eacute;crit comme &ccedil;a</strong>Il impose trois choses&nbsp;: un ordre (connecteurs, puis comp&eacute;tences, puis t&acirc;ches), votre accord avant chaque cr&eacute;ation, et l'interdiction d'inventer une valeur manquante. Sans ces trois phrases, Claude installe vite, et vous d&eacute;couvrez les erreurs plus tard.</div>
+    </div>
+
+    <h3>3. Configurez-le&nbsp;: &laquo;&nbsp;d&eacute;marre mon kit formation&nbsp;&raquo;</h3>
+    <p>L'installation met l'agent en place. La configuration lui dit chez qui il travaille. Elle se fait <strong>une seule fois pour les trois agents du kit Formation et Qualiopi</strong>&nbsp;: si vous l'avez d&eacute;j&agrave; faite, passez au chapitre suivant.</p>
+
+    <div class="prep">
+      <div class="pl">&#128221; Pr&eacute;parez vos r&eacute;ponses avant de lancer</div>
+      <ul>
+        <li>Le statut de votre organisme</li>
+        <li>Votre num&eacute;ro de d&eacute;claration d'activit&eacute;</li>
+        <li>Votre certification Qualiopi et la date du prochain audit</li>
+        <li>Votre outil de gestion de session, s'il y en a un</li>
+        <li>Vos financeurs habituels</li>
+        <li>Les formations d&eacute;j&agrave; au catalogue</li>
+        <li>Votre r&eacute;f&eacute;rent handicap et son contact</li>
+      </ul>
+    </div>
+
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">
+d&eacute;marre mon kit formation
+    </div></div>
+    <p>Les questions suivent une par une. Claude &eacute;crit ensuite <strong>contexte-agent.md</strong>, que les trois comp&eacute;tences relisent &agrave; chaque fois.</p>
+
+    <div class="tip info">
+      <span class="tip-i">&#128161;</span>
+      <div class="tip-c"><strong>La ligne &laquo;&nbsp;financeurs habituels&nbsp;&raquo; d&eacute;termine les pi&egrave;ces</strong>Un dossier financ&eacute; et un dossier vendu en direct n'appellent pas les m&ecirc;mes documents, ni les m&ecirc;mes d&eacute;lais. Nommez vos financeurs plut&ocirc;t que d'&eacute;crire &laquo;&nbsp;divers&nbsp;&raquo;&nbsp;: l'agent calera la cha&icirc;ne dessus.</div>
+    </div>
+
+    <div class="tip err">
+      <span class="tip-i">&#128274;</span>
+      <div class="tip-c"><strong>Ne donnez jamais de mot de passe ni de cl&eacute; d'API</strong>Le kit ne vous en demandera jamais. Les connexions &agrave; vos outils se font uniquement par les &eacute;crans pr&eacute;vus pour &ccedil;a dans votre application Claude.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 04 ===== -->
+<div class="ch" id="ch4">
+  <div class="ch-head"><span class="ch-num">04</span><h2>Connecter vos outils</h2></div>
+  <div class="card">
+
+    <div class="tools">
+<div class="tool"><span class="tico" style="background:#ffffff;border:1px solid var(--border)"><img class="toolico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABGlBMVEUAAABAgP9DhvVBhvRChfRChfQZZ9IZZ9EZaNMYZtNAivRDhfQaZ9IVatVBhvQZaNJDhfMZaNEaZ9FChfQZZ9L////7vATx9v6myfaCs/Jin+9XmO57rvK41Pj7/f/i7fzG3PmYwPUofOkac+gwgOq00fifxPUhd+l0qvGRu/Tt9P2UvvQleulFjew3heu81vjD2vkzguvp8v34+/7f6/xMku1QlO2GtfMedegsfupTlu5JkO2tzfd/sPKJt/O/2PmNufTX5/s6h+uqy/abwvXJ3vpwqPH0+P4+ieyxz/dtpvBbm+5ene/U5ftlofDN4PoYgDg0qFPqQzXqRDUYgDgXgDgggEAYgDgagDkXgDcAgEAZgTgYgDgYgDg1l7sXAAAAXnRSTlMABGO73///z5tLGM+fDL+7a1Oz79///////////////////////////////////////////////////////////////////////////////////4/bgxDjKM8Ee8PzvzhR0gAAAcJJREFUeAHt1oWu20AQheEppMzthPmEmXOZqQxbhvd/ja59mS1rRhDtbxTtJ1qgWcvlct24eet2JER3TnT33n26rAcPI0eFBmyPHtPFPYlIALandGHPIjKA7Tld1C054AVd1Es54BVdVEQKsMkBDnCAAxzAAYueywEOmEEgFk8kU+lMlk+Wy+djMkC2UIRfqczHVapAXgao4ag6H9RIAlJAE7ZWuwOvLvv1+hADBlUAiSHzaAxgwrbsdA6CwHQeC+wVmwdgpcYibHNCgG24lGO/JADvdwHA8ooccNQEQMx+c635VV6TB9arwAZ7dQesAGQ6AJb4IGFgdaHdgm2ZlYBN+G2xMtAvawHbOzuTImxbSoDXsDkHzI3UAFsBwI4msDsH7MkDw9dNPqgEzIkDayVUY+w3ALAhDrwB8DbLXu8AJMWB93MAxquNRncMW08c4BWc6APLA5zGUaldDYC7e/DrV9TWoo+F5cRWzx0dHTD7wKdzfQ7Yl7MZZcCQLmBIFzCkCxjSBQzpAoZ0AUO6gCFdwJAuYEgXMKQLGLqur+GBQOPTt/BAoPHp+4/wgKEg/fwVFjAUrN9//v4LAxhyuVyz3X/dV4hAn5ff5AAAAABJRU5ErkJggg==" width="22" height="22" alt=""></span><div><div class="tname">Google Agenda<span class="mcp ">MCP natif</span></div><div class="tdesc">Les dates de session, et la date de l'&eacute;valuation &agrave; froid pos&eacute;e &agrave; J+90.</div></div></div><div class="tool"><span class="tico" style="background:#ffffff;border:1px solid var(--border)"><img class="toolico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAEkklEQVR4Ae2ZA5BkSRRFc23bv7H2Fta72V7btm3bDq3tsdkY27b9a9xmTr6IyXB0Z1W/6j8/+56IGzOB1jsdpzp+CQMAAAAAAAAAAAAAAACAEZ53xvDMoz8ekXXMqBGZxyyiDc88pnhExjHvj/S8E0Q7pW7gTtH64h0/ry/ZcVhDyQ6LaPT/+tIdX68ZtEu2aC2js484Uh+7l55qZvUjM4/+btBxhx8o2gnVg3b16kp2+k8fWzU3LeQ3NUjsK1JB/8ZfoI+7QU9ZLjHS84qE4+ij3qyPW66nLLesdsDOyVViZNaR2Toxq+iwyY6yNEiKHYVjqEFi14biHb6joyY7naRZapCwL8TW1qtUR68PYz3vUOEI1HN9yEl6KtVRsoQNw7I9aQ7ZSgmr9GtDnvPJsV+91QuzPl4nPcW1NXmRd5WUoUvSIil3XXvVGX/T8bhGfzHZCJjGKcDPi6lEXqzYl7HQJMmXZ2Xr73uSHh2Oc71sBFQzCzBbtbogts0nSX+fN/t58XL6nrkF0IuxjQCVJgG0+kRu9G2eJPEnJ5Ef/c58r9wCzIIWwJwk/uS4LoA1SfzJcV8Aa5L4k+O+AIYk8SYHAhiSxJAcCEh3knx58p768/9kvhYEtGGSVhdGT/FzY9Poc2/zAp58oMvYYVlZAQngT5LOzd0mOUEKqCzeRd3fRY4ULZH7YYW6+cVJS/qeenYAAtiSZJLzm/lcQQpYNGAfVdjh8uXR/69XVgJol7zrV/1+0W0sAhg2aJ08+8j0J4dfQL8+x6hzO1xbQ8dPSoDZezd+oShJAQugJdbkx4v4k8MvwCTnw+4RZQ6fsgDag48Xq/6nRBgEMCw39jEliS85/AIoObd2yqeD8wigXf36YvXnBTdzCGBYfBgliSE57AIoORd1uJqOzSuAlv/BRvXB9Z9RkngEMCSp2eQwrBXJ4Rdgdt+TgxT9lWQpINRrZXL4BZhd8dYyRX8luS/APjn8Aiz2zk3fUJJcFWCbnOAE0O55aiglyUUBFskJXIBJ0opGSpJjAmyTE7wAs7dv/qaRkuSUAPvkBC+AdssLkxOUJFcEUHKu71RYRQcMhQBawQcbN/4s75kfdgFde2cuOuf/66rpeKESYEZPM+mpZgiPX53Iiz5sDhdaAUJDz/Xp+X5ojp8fn+cXxM4QGicEEPQOF73TFQIB/9GDPUG4JICgp5j8SeJNjjC4KIDgTxJvctwXwJ8k1uS4L4A/SazJcV8AZ5IYkgMBDEliSA4EpD9J8XK9+4UBAtouSfR+Mb1vLAgIaPMk/WafHAjgSpJJzt3CAAGpk8iPSn3UZezJgQB7VsrIgfq4/ZJNDgQw4+fGX6YkWScHAvjx8yMXUJIYkgMBDEliTQ4E8AMBEAABEAABEAABEAABEAABEAABQQEBEDDLQkDlPAhIk4D/rv+rZQEflL8PAekREPv/httFS8h3NuyrD7eMUwAE0PGv7yVskR9tPiHvw4pJbAIgYFqs442HimSQ76gd9evB6zkfVg7T/5ZDQGqHj3S47nn52z27CgAAAAAAAAAAAAAAAAAAtFu2AJlqODQM4+yVAAAAAElFTkSuQmCC" width="22" height="22" alt=""></span><div><div class="tname">Gmail<span class="mcp ">MCP natif</span></div><div class="tdesc">Convocations et relances, pr&eacute;par&eacute;es en brouillon. Il ne les envoie jamais sans votre accord.</div></div></div><div class="tool"><span class="tico" style="background:#ffffff;border:1px solid var(--border)"><img class="toolico" src="data:image/png;base64,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" width="22" height="22" alt=""></span><div><div class="tname">Google Drive<span class="mcp ">MCP natif</span></div><div class="tdesc">Le dossier de session&nbsp;: pi&egrave;ces sign&eacute;es, supports, attestations.</div></div></div><div class="tool"><span class="tico" style="background:#ffffff;border:1px solid var(--border)"><img class="toolico" src="data:image/png;base64,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" width="22" height="22" alt=""></span><div><div class="tname">Tally<span class="mcp ext">MCP officiel</span></div><div class="tdesc">Serveur MCP publi&eacute; par Tally&nbsp;: connexion OAuth, lecture et &eacute;criture, inclus dans toutes les offres. Utile pour les &eacute;valuations &agrave; chaud et &agrave; froid.</div></div></div><div class="tool"><span class="tico" style="background:#ffffff;border:1px solid var(--border)"><img class="toolico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAACM0lEQVR4nO3cMW5TQRSF4TMzjyjBiRFFvABaJCRKpCCLHVClYgfsAYVFsAI6U1FCg6JEoo9EywZSIBw5cay8uSkghWUKm+bXwPnaae7ot+dpmknTl49CjYhQP9zKZbqopw8+fn8e43F3dHSsty908+aTTrZ3dXA9Uy+p0LOuK9MD/O8cAOYAMAeAOQDMAWAOAHMAmAPAHADmADAHgDkAzAFgDgBzAJgDwBwA5gAwB4A5AMwBYA4AcwCYA8AcAOYAMAeAOQDMAWAOAHMAmAPAHADmADAHgDkAzAFgDgBzAJgDwBwA1kWop4fYwN2sdWUlVEPqk9Q38/aCpG64lZt5V6FWFd3L0qLfW1lM2tsZqKhXSc3sSOqmi3pKD7GBOszKOaUzSdJoFI/Pf68kfb2aaXY9V1X4aLU1pRiPO3qIjY2OI31Y/nZNJirf9pWokf5W0pdoL8C5QodpKUBMVNRgAIMlvf9xQg+xgaqdYdZ8eqZXD19rEiWUlA7Vx2e907ae6FJVqZ2PcKf7wwN6iLXVG2mQpasYSNLSkRN6pl09Vaip62Wny59tXcRyKVK6WFkJXWimXvO23ozrlBq6tkRISkV/+o3/Onbu9tLMnhr6s/6bHADmADAHgDkAzAFgDgBzAJgDwBwA5gAwB4A5AMwBYA4AcwCYA8AcAOYAMAeAOQDMAWAOAHMAmAPAHADmADAHgDkAzAFgDgBzAJgDwBwA5gAwB4A5AMwBYA4AcwCYA8AcAHYLYOlm1RkSAKIAAAAASUVORK5CYII=" width="22" height="22" alt=""></span><div><div class="tname">Microsoft 365<span class="mcp ext">Connecteur officiel</span></div><div class="tdesc">Outlook, Outlook Calendar, SharePoint et OneDrive. Connecteur officiel d'Anthropic, <strong>en lecture par d&eacute;faut</strong>&nbsp;: l'&eacute;criture doit &ecirc;tre valid&eacute;e par un administrateur Microsoft Entra.</div></div></div>
+    </div>
+    <div class="tip info">
+      <span class="tip-i">&#128279;</span>
+      <div class="tip-c"><strong>Deux sortes de connecteurs, &agrave; ne pas confondre</strong><strong style="display:inline;color:inherit">MCP natif</strong>&nbsp;: d&eacute;j&agrave; dans Claude, vous l'activez en un clic (Gmail, Google Drive, Google Sheets, Google Agenda). <strong style="display:inline;color:inherit">MCP officiel</strong>&nbsp;: publi&eacute; par l'&eacute;diteur de l'outil, vous l'ajoutez vous-m&ecirc;me dans Param&egrave;tres &rsaquo; Connecteurs avec l'URL qu'il fournit. Dans les deux cas, c'est votre compte&nbsp;: l'agent ne voit que ce que votre r&ocirc;le vous autorise &agrave; voir.</div>
+    </div>
+
+    <h3>Les logiciels de gestion d'organisme&nbsp;: &agrave; manier avec pr&eacute;caution</h3>
+    <p><strong>Digiforma</strong> et <strong>Dendreo</strong> n'ont pas de serveur MCP publi&eacute; par leur &eacute;diteur&nbsp;: ce qui existe est &eacute;crit par des tiers et n'est pas maintenu par eux. Utilisez-les en lecture si vous le souhaitez, mais ne leur confiez pas l'&eacute;criture dans votre outil de gestion &mdash; et pr&eacute;f&eacute;rez l'export de fichier, qui ne d&eacute;pend de personne.</p>
+
+    <h3>Les quatre cat&eacute;gories utilis&eacute;es ici</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Cat&eacute;gorie</th><th>&Agrave; quoi &ccedil;a sert ici</th><th>Options courantes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Agenda</strong></td><td>Les dates de session et l'&eacute;ch&eacute;ance &agrave; J+90</td><td>Google Agenda, Outlook Calendar, Infomaniak Calendar, Proton Calendar, Nextcloud Agenda</td></tr>
+          <tr><td><strong>Messagerie</strong></td><td>Convocations et relances, en brouillon</td><td>Gmail, Outlook (connecteur Microsoft 365), Infomaniak Mail, Proton Mail</td></tr>
+          <tr><td><strong>Stockage de fichiers</strong></td><td>Le dossier de session et ses pi&egrave;ces</td><td>Google Drive, SharePoint, OneDrive, Nextcloud, kDrive, Dropbox</td></tr>
+          <tr><td><strong>Formulaires</strong></td><td>&Eacute;valuations &agrave; chaud et &agrave; froid</td><td>Tally (MCP officiel), Google Forms, un formulaire de votre outil de gestion</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip warn">
+      <span class="tip-i">&#128193;</span>
+      <div class="tip-c"><strong>Un dossier par session, nomm&eacute; pareil &agrave; chaque fois</strong>Date, intitul&eacute;, client. C'est la convention de nommage qui rend une pi&egrave;ce retrouvable trois ans plus tard, et c'est elle qui permet &agrave; l'agent <em>Preuves Qualiopi</em> de ranger ce que celui-ci produit.</div>
+    </div>
+
+    <h3>Pourquoi le kit ne nomme jamais un produit</h3>
+    <p>Dans les fichiers du kit, vous croiserez <code>~~agenda</code>, <code>~~messagerie</code>, <code>~~stockage</code> ou <code>~~formulaire</code>. Ce sont des emplacements vides, volontairement. Votre fichier de contexte fait la correspondance avec vos outils r&eacute;els.</p>
+
+  </div>
+</div>
+
+<!-- ===== CH 05 ===== -->
+<div class="ch" id="ch5">
+  <div class="ch-head"><span class="ch-num">05</span><h2>Le lancer &agrave; la main</h2></div>
+  <div class="card">
+
+    <h3>Les deux phrases</h3>
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">
+pr&eacute;pare la session du 14 mars
+    </div></div>
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">
+o&ugrave; j'en suis sur la session de mars&nbsp;?
+    </div></div>
+    <p>La premi&egrave;re construit la cha&icirc;ne de pi&egrave;ces. La seconde interroge l'&eacute;tat&nbsp;: ce qui est revenu, ce qui manque, qui relancer.</p>
+
+    <h3>Satisfaction et acquis&nbsp;: deux choses diff&eacute;rentes</h3>
+    <p>C'est la confusion la plus r&eacute;pandue, et elle se voit tout de suite dans un dossier.</p>
+    <div class="vg">
+      <div class="vc"><div class="vt">&#128522; L'&eacute;valuation &agrave; chaud</div><div class="vd">Ce que les participants ont pens&eacute; de la journ&eacute;e&nbsp;: rythme, formateur, salle, utilit&eacute; per&ccedil;ue.</div></div>
+      <div class="vc"><div class="vt">&#127919; L'&eacute;valuation des acquis</div><div class="vd">Ce qu'ils savent faire &agrave; la sortie, mesur&eacute; par l'&eacute;preuve annonc&eacute;e dans le programme.</div></div>
+      <div class="vc"><div class="vt">&#10052;&#65039; L'&eacute;valuation &agrave; froid</div><div class="vd">Ce qu'il en reste &agrave; J+90, et ce qui a &eacute;t&eacute; r&eacute;ellement appliqu&eacute; au travail.</div></div>
+    </div>
+    <p>Une salle enchant&eacute;e qui n'a rien appris donne d'excellents retours &agrave; chaud. Seule la deuxi&egrave;me colonne r&eacute;pond &agrave; la question que pose le r&eacute;f&eacute;rentiel&nbsp;: l'atteinte des objectifs par les b&eacute;n&eacute;ficiaires.</p>
+
+    <h3>La feuille d'&eacute;margement</h3>
+    <p>Par demi-journ&eacute;e, avec l'intitul&eacute; de la s&eacute;quence, le nom et la signature du formateur, et la signature de chaque participant. C'est la forme que les financeurs attendent et qui donne &agrave; la feuille sa valeur de preuve. En distanciel, la logique est la m&ecirc;me&nbsp;: ce qui compte est de pouvoir justifier la pr&eacute;sence effective, par le moyen que votre dispositif permet &mdash; demandez &agrave; votre financeur ce qu'il accepte avant la session, pas apr&egrave;s.</p>
+
+    <div class="tip info">
+      <span class="tip-i">&#128161;</span>
+      <div class="tip-c"><strong>Pr&eacute;parez la session enti&egrave;re d'un coup, m&ecirc;me ce qui servira dans trois mois</strong>Le formulaire d'&eacute;valuation &agrave; froid prend cinq minutes &agrave; pr&eacute;parer le jour o&ugrave; vous pr&eacute;parez le reste, et une demi-journ&eacute;e &agrave; retrouver trois mois plus tard, quand le contexte de la session s'est effac&eacute;.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 06 ===== -->
+<div class="ch" id="ch6">
+  <div class="ch-head"><span class="ch-num">06</span><h2>Le mettre en automatique</h2></div>
+  <div class="card">
+
+    <p>Trois t&acirc;ches, une par moment de la vie d'une session.</p>
+
+    <h3>Le lundi &mdash; les sessions de la semaine</h3>
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">Cr&eacute;e une t&acirc;che programm&eacute;e chaque lundi &agrave; 9h qui liste les sessions de la semaine et les pi&egrave;ces non pr&eacute;par&eacute;es.</div></div>
+    <p>Elle transforme le lundi matin en cinq minutes de v&eacute;rification au lieu d'une d&eacute;couverte le mercredi.</p>
+
+    <h3>Le vendredi &mdash; les pi&egrave;ces non revenues</h3>
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">Cr&eacute;e une t&acirc;che programm&eacute;e chaque vendredi &agrave; 16h qui liste les pi&egrave;ces non revenues des sessions termin&eacute;es et pr&eacute;pare les relances en brouillon.</div></div>
+    <p>Une pi&egrave;ce qui manque se r&eacute;cup&egrave;re facilement la semaine suivante, difficilement six mois plus tard, et parfois jamais.</p>
+
+    <h3>J+90 &mdash; l'&eacute;valuation &agrave; froid</h3>
+    <div class="codewrap"><button class="copybtn" type="button">Copier</button><div class="code">Cr&eacute;e une t&acirc;che programm&eacute;e &agrave; J+90 de chaque session qui lance l'&eacute;valuation &agrave; froid.</div></div>
+
+    <h3>G&eacute;rer vos t&acirc;ches</h3>
+    <div class="vg">
+      <div class="vc"><div class="vt">&#128203; Les lister</div><div class="vd">&laquo;&nbsp;montre-moi mes t&acirc;ches programm&eacute;es&nbsp;&raquo;</div></div>
+      <div class="vc"><div class="vt">&#128336; En d&eacute;caler une</div><div class="vd">&laquo;&nbsp;passe l'&eacute;valuation &agrave; froid &agrave; J+60&nbsp;&raquo;</div></div>
+      <div class="vc"><div class="vt">&#9199;&#65039; En suspendre une</div><div class="vd">&laquo;&nbsp;mets en pause la t&acirc;che du vendredi&nbsp;&raquo;</div></div>
+      <div class="vc"><div class="vt">&#128465;&#65039; En supprimer une</div><div class="vd">&laquo;&nbsp;supprime la t&acirc;che du lundi&nbsp;&raquo;</div></div>
+    </div>
+
+    <div class="tip warn">
+      <span class="tip-i">&#9889;</span>
+      <div class="tip-c"><strong>Si vous n'en gardez qu'une, gardez celle du vendredi</strong>C'est celle qui emp&ecirc;che le trou dans le dossier. Les pi&egrave;ces manquantes ne se signalent jamais d'elles-m&ecirc;mes&nbsp;: elles se d&eacute;couvrent le jour o&ugrave; quelqu'un les demande.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 07 ===== -->
+<div class="ch" id="ch7">
+  <div class="ch-head"><span class="ch-num">07</span><h2>Ce qu'il ne fait pas</h2></div>
+  <div class="card">
+
+    <p>Trois interdits, &eacute;crits dans le fichier d'instructions. Ils ne se configurent pas.</p>
+
+    <div class="vg">
+      <div class="vc"><div class="vt">&#128683; Il n'envoie aucune convocation sans accord</div><div class="vd">Tout reste en brouillon jusqu'&agrave; ce que vous relisiez et envoyiez.</div></div>
+      <div class="vc"><div class="vt">&#128683; Il n'&eacute;met aucune attestation sans accord</div><div class="vd">Une attestation engage votre organisme&nbsp;: elle se relit avant de partir.</div></div>
+      <div class="vc"><div class="vt">&#128683; Il ne signe jamais &agrave; la place de quelqu'un</div><div class="vd">Ni &eacute;margement, ni attestation. Une signature appos&eacute;e par un autre n'a aucune valeur de preuve.</div></div>
+    </div>
+
+    <h3>Le contenu des attestations n'est pas fix&eacute; par le code du travail</h3>
+    <p>C'est une source de confusion fr&eacute;quente&nbsp;: il n'existe pas de liste l&eacute;gale de mentions pour une attestation de fin de formation. Ce que les financeurs demandent, c'est g&eacute;n&eacute;ralement le <strong>certificat de r&eacute;alisation</strong>, dont ils fournissent le mod&egrave;le. L'agent reprend donc <strong>le mod&egrave;le que vous lui donnez</strong>, celui de votre financeur, plut&ocirc;t qu'un format invent&eacute;.</p>
+
+    <div class="tip info">
+      <span class="tip-i">&#128161;</span>
+      <div class="tip-c"><strong>Et ce qu'il ne remplace pas</strong>Il ne remplace pas votre logiciel de gestion si vous en avez un, et il ne facture pas. Il couvre la zone grise entre l'agenda et le logiciel&nbsp;: les pi&egrave;ces qu'on produit &agrave; la main et qu'on oublie de r&eacute;clamer.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== CH 08 ===== -->
+<div class="ch" id="ch8">
+  <div class="ch-head"><span class="ch-num">08</span><h2>Si &ccedil;a ne marche pas</h2></div>
+  <div class="card">
+
+    <h3>Il ne voit pas ma session</h3>
+    <p>Elle n'est probablement pas dans l'agenda connect&eacute;, ou pas sous une forme reconnaissable. Posez vos sessions avec un intitul&eacute; constant &mdash; date, formation, client &mdash; et il les retrouvera sans que vous ayez &agrave; les lui d&eacute;crire.</p>
+
+    <h3>Les convocations ne partent pas</h3>
+    <p>C'est voulu&nbsp;: elles restent en brouillon. Si vous ne les voyez m&ecirc;me pas en brouillon sous Microsoft 365, c'est l'autre cause&nbsp;: le connecteur est <strong>en lecture par d&eacute;faut</strong>, et l'&eacute;criture dans Outlook demande une validation par un administrateur Microsoft Entra.</p>
+
+    <h3>L'&eacute;tat de session ne correspond pas &agrave; la r&eacute;alit&eacute;</h3>
+    <p>Il ne sait que ce qui est rang&eacute; dans le dossier de session. Une feuille sign&eacute;e qui dort dans une pile sur votre bureau n'existe pas pour lui. Scannez et d&eacute;posez, ou dites-lui que la pi&egrave;ce est arriv&eacute;e&nbsp;: il met l'&eacute;tat &agrave; jour.</p>
+
+    <h3>J'ai des sessions en distanciel, l'&eacute;margement papier n'a pas de sens</h3>
+    <p>Dites-lui comment vous justifiez la pr&eacute;sence effective dans ce cas&nbsp;: &eacute;margement &eacute;lectronique, connexions horodat&eacute;es, attestation du formateur. Il adapte la pi&egrave;ce. V&eacute;rifiez aupr&egrave;s du financeur concern&eacute; ce qu'il accepte, avant la session.</p>
+
+    <h3>Un participant n'a jamais renvoy&eacute; sa feuille</h3>
+    <p>La t&acirc;che du vendredi le signale et pr&eacute;pare la relance. S'il reste introuvable, ne reconstituez rien&nbsp;: notez l'absence de la pi&egrave;ce et ce qui a &eacute;t&eacute; tent&eacute; pour l'obtenir. Un trou document&eacute; se discute&nbsp;; une pi&egrave;ce reconstitu&eacute;e, non.</p>
+
+    <h3>Le r&eacute;flexe qui r&egrave;gle le reste</h3>
+    <p>Dites-lui ce qui ne va pas, en langage courant. &laquo;&nbsp;La convocation doit mentionner le parking&nbsp;&raquo;, &laquo;&nbsp;ce client veut son propre mod&egrave;le d'attestation&nbsp;&raquo;, &laquo;&nbsp;s&eacute;pare les &eacute;margements du matin et de l'apr&egrave;s-midi&nbsp;&raquo;. Il corrige, et si la remarque vaut toujours, demandez-lui de l'&eacute;crire dans le contexte.</p>
+
+  </div>
+</div>
+
+<!-- ===== CH 09 ===== -->
+<div class="ch" id="ch9">
+  <div class="ch-head"><span class="ch-num">09</span><h2>R&eacute;cap et exercices</h2></div>
+  <div class="card">
+
+    <h3>Ce que vous savez maintenant faire</h3>
+    <div class="vg">
+      <div class="vc"><div class="vt">&#9989; Installer l'agent</div><div class="vd">D&eacute;poser le fichier d'instructions, coller le prompt d'initialisation, valider chaque cr&eacute;ation.</div></div>
+      <div class="vc"><div class="vt">&#9989; Reconna&icirc;tre les 4 briques</div><div class="vd">Skill, contexte, connecteur, t&acirc;che programm&eacute;e.</div></div>
+      <div class="vc"><div class="vt">&#9989; Suivre la cha&icirc;ne d'une session</div><div class="vd">Convocation, &eacute;margement, support, &eacute;valuations, attestation.</div></div>
+      <div class="vc"><div class="vt">&#9989; Distinguer les trois &eacute;valuations</div><div class="vd">&Agrave; chaud, acquis, &agrave; froid&nbsp;: elles ne r&eacute;pondent pas &agrave; la m&ecirc;me question.</div></div>
+      <div class="vc"><div class="vt">&#9989; Lire un &eacute;tat de session</div><div class="vd">Ce qui est revenu, ce qui manque, qui relancer et depuis quand.</div></div>
+      <div class="vc"><div class="vt">&#9989; Passer en automatique</div><div class="vd">Cr&eacute;er, lister, d&eacute;caler et supprimer une t&acirc;che.</div></div>
+    </div>
+
+    <h3>Exercices pratiques</h3>
+    <p>Quatre exercices de difficult&eacute; croissante.</p>
+    <div class="ex">
+      <div class="exh"><span class="exb easy">&#128994; Facile</span> &mdash; La session termin&eacute;e <span class="exd">(&asymp; 20 min)</span></div>
+      <p>Prenez votre derni&egrave;re session et demandez l'&eacute;tat du dossier. Les pi&egrave;ces manquantes sont celles que vous auriez cherch&eacute;es dans l'urgence.</p>
+    </div>
+    <div class="ex">
+      <div class="exh"><span class="exb med">&#128993; Moyen</span> &mdash; La cha&icirc;ne compl&egrave;te <span class="exd">(&asymp; 30 min)</span></div>
+      <p>Pr&eacute;parez une session &agrave; venir de bout en bout, &eacute;valuation &agrave; froid comprise, et posez-la dans l'agenda d&egrave;s maintenant.</p>
+    </div>
+    <div class="ex">
+      <div class="exh"><span class="exb hard">&#128308; Difficile</span> &mdash; Le trimestre pass&eacute; <span class="exd">(&asymp; 60 min)</span></div>
+      <p>Faites l'&eacute;tat de toutes les sessions du dernier trimestre. Le taux de pi&egrave;ces manquantes vous dit o&ugrave; votre cha&icirc;ne fuit, et &agrave; quel moment.</p>
+    </div>
+    <div class="ex">
+      <div class="exh"><span class="exb expl">&#128995; Exploration</span> &mdash; Les r&eacute;ponses &agrave; froid <span class="exd">(&asymp; 30 min)</span></div>
+      <p>Comparez, sur une m&ecirc;me formation, ce que disent l'&eacute;valuation &agrave; chaud et l'&eacute;valuation &agrave; froid. L'&eacute;cart est l'information la plus utile que vous ayez sur votre p&eacute;dagogie.</p>
+    </div>
+
+    <div class="tip info">
+      <span class="tip-i">&#128640;</span>
+      <div class="tip-c"><strong>Et maintenant&nbsp;?</strong><strong style="display:inline;color:inherit">Suivi de session</strong> est le deuxi&egrave;me des trois agents du kit Formation et Qualiopi. <strong style="display:inline;color:inherit">Programme de formation</strong> &eacute;crit ce qui se vend, et <strong style="display:inline;color:inherit">Preuves Qualiopi au fil de l'eau</strong> range ce que les sessions produisent. Les trois lisent le m&ecirc;me contexte.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="ch" id="ch10">
+  <div class="ch-head"><span class="ch-num">10</span><h2>Quiz de fin</h2></div>
+  <div class="card">
+    <p>Trois questions pour v&eacute;rifier que l'essentiel est pass&eacute;. Cliquez sur la r&eacute;ponse qui vous semble juste&nbsp;: la correction s'affiche aussit&ocirc;t.</p>
+    <div class="quiz"><div class="q"><div class="qq"><span class="qn">Q1</span>Une session se termine avec d'excellents retours &agrave; chaud. Qu'est-ce que &ccedil;a prouve&nbsp;?</div><button class="opt" type="button" data-ok="0">Que les objectifs ont &eacute;t&eacute; atteints</button><button class="opt" type="button" data-ok="1">Que les participants ont appr&eacute;ci&eacute; la journ&eacute;e, rien de plus</button><button class="opt" type="button" data-ok="0">Que la formation est conforme au r&eacute;f&eacute;rentiel</button><div class="exp">La satisfaction et l'atteinte des objectifs sont deux mesures diff&eacute;rentes. Une salle enchant&eacute;e qui n'a rien appris donne d'excellents retours &agrave; chaud&nbsp;: seule l'&eacute;valuation des acquis r&eacute;pond &agrave; la question des objectifs.</div></div><div class="q"><div class="qq"><span class="qn">Q2</span>Un participant n'a pas sign&eacute; la feuille d'&eacute;margement. Que fait l'agent&nbsp;?</div><button class="opt" type="button" data-ok="0">Il appose la signature pour compl&eacute;ter le dossier</button><button class="opt" type="button" data-ok="1">Il signale l'absence et pr&eacute;pare la relance</button><button class="opt" type="button" data-ok="0">Il supprime la ligne du participant</button><div class="exp">Il ne signe jamais &agrave; la place de quelqu'un&nbsp;: une signature appos&eacute;e par un autre n'a aucune valeur de preuve. Un trou document&eacute; se discute&nbsp;; une pi&egrave;ce reconstitu&eacute;e, non.</div></div><div class="q"><div class="qq"><span class="qn">Q3</span>D'o&ugrave; vient le d&eacute;lai de J+90 pour l'&eacute;valuation &agrave; froid&nbsp;?</div><button class="opt" type="button" data-ok="0">D'une obligation du code du travail</button><button class="opt" type="button" data-ok="1">D'un choix de l'organisme, &agrave; appliquer de fa&ccedil;on constante</button><button class="opt" type="button" data-ok="0">D'une exigence des financeurs, identique partout</button><div class="exp">Aucun texte n'impose ce d&eacute;lai. Ce qui compte, c'est qu'il soit le m&ecirc;me pour toutes vos sessions et &eacute;crit quelque part&nbsp;: sinon les r&eacute;ponses ne se comparent pas d'une session &agrave; l'autre.</div></div></div>
+    <div class="qscore">Score : 0 / 0</div>
+  </div>
+</div>
+<div class="footer">
+  <p><strong>&#128218; Guide agent &mdash; Suivi de session</strong></p>
+  <p>Kit Formation et Qualiopi &middot; Formation Studeria &middot; Octobre 2026</p>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+
+<button class="top" aria-label="Haut de page">&#8593;</button>
+
+<script>
+(function(){
+  var bar=document.querySelector('.progress'),top=document.querySelector('.top');
+  var links=[].slice.call(document.querySelectorAll('.sidebar a[href^="#"]'));
+  var chs=[].slice.call(document.querySelectorAll('.ch'));
+  function onScroll(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?window.scrollY/h*100:0)+'%';
+    top.classList.toggle('show',window.scrollY>600);
+    var cur=null;
+    chs.forEach(function(c){if(c.getBoundingClientRect().top<160)cur=c.id});
+    links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur)});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  top.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}})},
+      {rootMargin:'0px 0px -60px 0px'});
+    chs.forEach(function(c){io.observe(c)});
+  } else { chs.forEach(function(c){c.classList.add('vis')}); }
+  links.forEach(function(a){a.addEventListener('click',function(){
+    document.querySelector('.sidebar').classList.remove('open')})});
+
+  /* bouton copier */
+  document.querySelectorAll('.copybtn').forEach(function(b){
+    b.addEventListener('click',function(){
+      var code=b.parentNode.querySelector('.code');
+      var t=code.innerText.replace(/^\/\/.*\n?/,'').trim();
+      var done=function(){b.textContent='Copie !';b.classList.add('done');
+        setTimeout(function(){b.textContent='Copier';b.classList.remove('done')},2000)};
+      if(navigator.clipboard&&window.isSecureContext){
+        navigator.clipboard.writeText(t).then(done,fallback);
+      } else { fallback(); }
+      function fallback(){
+        var ta=document.createElement('textarea');ta.value=t;
+        ta.style.position='fixed';ta.style.opacity=0;document.body.appendChild(ta);
+        ta.select();try{document.execCommand('copy');done()}catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  /* quiz */
+  var qz=document.querySelector('.quiz');
+  if(qz){
+    var total=qz.querySelectorAll('.q').length,good=0,done=0;
+    var sc=document.querySelector('.qscore');
+    qz.querySelectorAll('.q').forEach(function(q){
+      q.querySelectorAll('button.opt').forEach(function(b){
+        b.addEventListener('click',function(){
+          if(q.classList.contains('answered'))return;
+          q.classList.add('answered');done++;
+          var ok=b.dataset.ok==='1';if(ok)good++;
+          b.classList.add(ok?'good':'bad');
+          if(!ok)q.querySelector('button.opt[data-ok="1"]').classList.add('good');
+          if(sc)sc.textContent=done<total?('Score : '+good+' / '+done+'  \u2014  '+(total-done)+' question(s) restante(s)')
+            :('Score final : '+good+' / '+total+(good===total?'  \u2014  parfait !':'  \u2014  relisez les chapitres concernes.'));
+        });
+      });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
